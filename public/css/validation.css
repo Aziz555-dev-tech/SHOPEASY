@@ -1,0 +1,161 @@
+/* ===== STYLES POUR LA VALIDATION DES FORMULAIRES ===== */
+
+/* Champs avec erreur */
+.input-error {
+    border-color: #DC3545 !important;
+    background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+.input-error:focus {
+    border-color: #DC3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+/* Messages d'erreur */
+.field-error {
+    color: #DC3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    animation: slideDown 0.3s ease;
+}
+
+.field-error::before {
+    content: '⚠';
+    font-size: 1rem;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Indicateur de force du mot de passe */
+.password-strength-indicator {
+    margin-top: 0.5rem;
+}
+
+.strength-bar {
+    height: 4px;
+    background-color: #e0e0e0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: all 0.3s ease;
+}
+
+.strength-text {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+/* Champs valides */
+.input-valid {
+    border-color: #28A745 !important;
+    background-color: rgba(40, 167, 69, 0.05) !important;
+}
+
+.input-valid:focus {
+    border-color: #28A745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+/* Message de succès */
+.field-success {
+    color: #28A745;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.field-success::before {
+    content: '✓';
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Tooltip d'aide pour les champs */
+.field-help {
+    font-size: 0.8rem;
+    color: var(--medium-gray);
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.field-help::before {
+    content: 'ℹ';
+    font-size: 0.9rem;
+    margin-top: 0.1rem;
+}
+
+/* Liste des exigences du mot de passe */
+.password-requirements {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: var(--light-gray);
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+}
+
+.password-requirements li {
+    padding: 0.25rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--medium-gray);
+}
+
+.password-requirements li::before {
+    content: '○';
+    font-size: 1rem;
+}
+
+.password-requirements li.met {
+    color: #28A745;
+}
+
+.password-requirements li.met::before {
+    content: '✓';
+    font-weight: bold;
+}
+
+/* Animation pour les transitions */
+.form-control {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .field-error,
+    .field-success,
+    .field-help {
+        font-size: 0.8rem;
+    }
+    
+    .password-requirements {
+        font-size: 0.8rem;
+    }
+}
