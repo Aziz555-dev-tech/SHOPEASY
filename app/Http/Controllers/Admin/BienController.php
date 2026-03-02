@@ -5,28 +5,53 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Bien;
 use App\Models\BienMedia;
+use App\Models\Boutique;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class BienController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $biens = Bien::with(['proprietaire','medias'])->latest()->get();
         $proprietaires = User::where('role','proprietaire')->get();
         $categories = \App\Models\Category::all();
-    
+
+        $query = Bien::with(['proprietaire', 'medias']);
+
+                // FILTRE
+                if ($request->disponibilite == 'disponible') {
+                    $query->where('stock', '>', 0);
+                }
+        
+                if ($request->disponibilite == 'faible') {
+                    $query->whereBetween('stock', [1, 4]);
+                }
+        
+                if ($request->disponibilite == 'epuise') {
+                    $query->where('stock', 0);
+                }
+        
+                $biens = $query->latest()->get();
+        
+                $proprietaires = User::where('role', 'proprietaire')->get();
+                $categories = Category::all();
+        
         return view('admin.biens.index', compact('biens','proprietaires','categories'));
     }    
 
     public function create()
     {
         $biens = Bien::with(['proprietaire','medias'])->latest()->get();
+
+        $boutiques = Boutique::all();
         $proprietaires = User::where('role','proprietaire')->orderBy('name')->get();
+        
         $categories = \App\Models\Category::all();
 
-        return view('admin.biens.create', compact('biens','proprietaires','categories'));
+        return view('admin.biens.create', compact('biens', 'boutiques', 'proprietaires','categories'));
     }
 
     public function store(Request $request)
@@ -43,10 +68,15 @@ class BienController extends Controller
             'prix'               => 'required|numeric|min:0',
             'stock'               => 'required|numeric|min:1',
             'type'               => 'nullable|in:vente,location',
-            'proprietaire_id'    => 'required|exists:users,id',
-
+            'boutique_id'       => 'required|exists:boutiques,id',
             'medias.*'           => 'nullable|mimes:jpg,jpeg,png,gif,mp4,mov,avi|max:20000',
         ]);
+
+        // On récupère la boutique donc l'id de son propriétaire aussi est déjà impliqué
+        $boutique = Boutique::findOrFail($request->boutique_id);
+
+        // On passe l'id du proprietaire dans la requete
+        $data['proprietaire_id'] = $boutique->proprietaire_id;
 
         $data['type'] = $data['type'] ?? 'vente';
 
@@ -73,8 +103,9 @@ class BienController extends Controller
     {
         $proprietaires = User::where('role','proprietaire')->get();
         $categories = \App\Models\Category::all();
+        $boutiques = Boutique::all();
 
-        return view('admin.biens.edit', compact('bien','proprietaires', 'categories'));
+        return view('admin.biens.edit', compact('bien','proprietaires', 'categories', 'boutiques'));
     }
 
     public function update(Request $request, Bien $bien)
@@ -89,13 +120,17 @@ class BienController extends Controller
     
             'adresse'            => 'nullable|string|max:255',
             'prix'               => 'required|numeric|min:0',
-            'stock'               => 'required|numeric|min:1',
+            'stock'               => 'required|numeric|min:0',
             'type'               => 'nullable|in:vente,location',
     
-            'proprietaire_id'    => 'required|exists:users,id',
+            'boutique_id'    => 'required|exists:boutiques,id',
     
             'medias.*'           => 'nullable|mimes:jpg,jpeg,png,gif,mp4,mov,avi|max:20000',
         ]);
+
+        $boutique = Boutique::findOrFail($request->boutique_id);
+
+        $validated['proprietaire_id'] = $boutique->proprietaire_id;
     
         $bien->update($validated);
     
@@ -140,18 +175,4 @@ class BienController extends Controller
                          ->with('success', 'Bien supprimé.');
     }
 
-    public function louer(Request $request, Bien $bien)
-    {
-        if ($bien->statut === 'disponible') {
-
-            $bien->update([
-                'statut'   => 'attribue',
-                'date_fin' => now()->addMonths(6),
-            ]);
-
-            return redirect()->back()->with('success', 'Le bien a été loué avec succès');
-        }
-
-        return redirect()->back()->with('error', 'Ce bien est déjà loué');
-    }
 }

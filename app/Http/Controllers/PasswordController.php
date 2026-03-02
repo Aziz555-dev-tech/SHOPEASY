@@ -21,14 +21,26 @@ class PasswordController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
-        
-
         $user = auth()->user();
         $user->password = Hash::make($request->password);
         $user->must_change_password = false;
         $user->save();
+        
+        switch($user->role) {
+            case 'proprietaire':
+                return redirect()->route('proprietaire.boutique.configuration')
+                    ->with('success', 'Mot de passe modifié avec succès. Veuillez achever les configurations de votre boutique.');
+            
+            case 'livreur':
+                return redirect()->route('livreur.dashboard')
+                    ->with('success', 'Mot de passe modifié avec succès. Bienvenu sur votre espace livreur.');
+            
+            default:
+                return redirect('/')->with('success', 'Mot de passe modifié avec succès.');
+        }
+        
 
-        return redirect()->route('proprietaire.dashboard')->with('success', 'Mot de passe modifié avec succès');
+        
     }
 }
 

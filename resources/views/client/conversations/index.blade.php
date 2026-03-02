@@ -15,10 +15,10 @@
                    data-name="{{ $u->name }}"
                    data-surname="{{ $u->surname }}"
                    data-role="{{ ucfirst($u->role) }}"
-                   data-avatar="{{ $u->profil ? asset('storage/' . $u->profil) : asset('assets/images/default_user.png') }}"
+                   data-avatar="{{ $u->profil ? asset('storage/' . $u->profil) : asset('assets/images/PROFIL.png') }}"
                    data-id="{{ $u->id }}">
 
-                   <img src="{{ $u->profil ? asset('storage/' . $u->profil) : asset('assets/images/default_user.png') }}"
+                   <img src="{{ $u->profil ? asset('storage/' . $u->profil) : asset('assets/images/PROFIL.png') }}"
                    alt="Photo de profil"
                    class="rounded-circle"
                    width="50"
@@ -56,7 +56,7 @@
                     {{-- Avatar de l’interlocuteur --}}
                     <img src="{{ $interlocuteur && $interlocuteur->profil 
                         ? asset('storage/' . $interlocuteur->profil) 
-                        : asset('assets/images/default_user.png') }}"
+                        : asset('assets/images/PROFIL.png') }}"
                         alt="Photo de profil"
                         class="rounded-circle me-3"
                         width="50"
@@ -90,6 +90,7 @@
 @endif
 
 </div>
+
 
 <style>
 .user-carousel::-webkit-scrollbar {

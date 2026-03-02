@@ -19,8 +19,9 @@ class ConversationController extends Controller
         // Utilisateurs autorisés selon le rôle
         $allowedUsers = match($user->role) {
             'admin' => User::where('id', '!=', $user->id)->get(),
-            'client' => User::whereIn('role', ['admin'])->get(),
-            'proprietaire' => User::whereIn('role', ['admin'])->get(),
+            'client' => User::where('role', 'admin')->get(),
+            'proprietaire' => User::where('role', 'admin')->get(),
+            'livreur' => User::where('role', 'admin')->get(),
             default => collect(),
         };
     
@@ -133,8 +134,9 @@ class ConversationController extends Controller
     {
         return match($user->role) {
             'admin' => User::where('id', '!=', $user->id)->get(),
-            'client' => User::whereIn('role', ['proprietaire', 'admin'])->get(),
-            'proprietaire' => User::whereIn('role', ['client', 'admin'])->get(),
+            'client' => User::whereIn('role', ['admin'])->get(),
+            'livreur' => User::whereIn('role', ['admin'])->get(),
+            'proprietaire' => User::whereIn('role', ['admin'])->get(),
             default => collect(),
         };
     }

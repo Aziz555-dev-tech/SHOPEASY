@@ -59,4 +59,23 @@ class Conversation extends Model
             $q->where('participant1_id', $userBId)->where('participant2_id', $userAId);
         })->first();
     }
+
+    // Commpter le nombre de conversation comportant de nouveaux messages
+    public function unreadMessagesCountFor($userId)
+    {
+        return $this->messages()
+            ->where('lu', false)
+            ->where('expediteur_id', '!=', $userId)
+            ->count();
+    }
+
+    public function scopeWithUnreadFor($query, $userId)
+    {
+        return $query->whereHas('messages', function ($q) use ($userId) {
+            $q->where('lu', false)
+            ->where('expediteur_id', '!=', $userId);
+        });
+    }
+
+
 }

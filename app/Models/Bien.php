@@ -20,6 +20,7 @@ class Bien extends Model
         'stock',
         'type',
         'statut',
+        'boutique_id',
         'proprietaire_id',
     ];
 
@@ -36,7 +37,7 @@ class Bien extends Model
 
     /** Médias */
     public function medias()
-     { 
+    { 
         return $this->hasMany(BienMedia::class, 'bien_id'); 
     }
 
@@ -54,6 +55,12 @@ class Bien extends Model
     {
         return $this->belongsTo(SubType::class);
     }
+
+    public function boutique()
+    {
+        return $this->belongsTo(Boutique::class);
+    }
+
 
 
 }

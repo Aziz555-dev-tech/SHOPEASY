@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Proprietaire;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bien;
+use App\Models\Boutique;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,26 +16,49 @@ class ProprietaireBienController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $userId = auth()->id(); // ID du propriétaire connecté
-        
-        $biens = Bien::with(['proprietaire', 'medias'])
-                    ->where('proprietaire_id', $userId) // Filtre sur le propriétaire connecté
-                    ->latest()
-                    ->get();
+        $userId = auth()->id();
+
+        $query = Bien::with(['proprietaire', 'medias'])
+                    ->where('proprietaire_id', $userId); // Filtre sur le propriétaire connecté
+
+        // FILTRE
+        if ($request->disponibilite == 'disponible') {
+            $query->where('stock', '>', 0);
+        }
+
+        if ($request->disponibilite == 'faible') {
+            $query->whereBetween('stock', [1, 4]);
+        }
+
+        if ($request->disponibilite == 'epuise') {
+            $query->where('stock', 0);
+        }
+
+        $biens = $query->latest()->get();
 
         $proprietaires = User::where('role', 'proprietaire')->get();
         $categories = Category::all();
 
-        return view('proprio.biens.index', compact('biens', 'proprietaires', 'categories'));
+        $stats = [
+            'total' => Bien::where('proprietaire_id',$userId)->count(),
+            'disponible' => Bien::where('proprietaire_id',$userId)->where('stock','>',0)->count(),
+            'faible' => Bien::where('proprietaire_id',$userId)->whereBetween('stock',[1,4])->count(),
+            'epuise' => Bien::where('proprietaire_id',$userId)->where('stock',0)->count(),
+        ];
+        
+
+        return view('proprio.biens.index', compact('biens', 'proprietaires', 'categories', 'stats'));
     }
+
 
 
     public function create()
     {
+        $boutiques = Boutique::all();
         $categories = Category::all();
-        return view('proprio.biens.create', compact('categories'));
+        return view('proprio.biens.create', compact('categories', 'boutiques'));
     }
 
     public function store(Request $request)
@@ -49,11 +73,15 @@ class ProprietaireBienController extends Controller
 
             'adresse'            => 'nullable|string|max:255',
             'prix'               => 'required|numeric|min:0',
+            'stock'               => 'required|numeric|min:1',
             'type'               => 'nullable|in:vente,location',
-            'proprietaire_id'    => 'required|exists:users,id',
-
+            'boutique_id'   => 'required|exists:boutiques,id',
             'medias.*'           => 'nullable|mimes:jpg,jpeg,png,gif,mp4,mov,avi|max:20000',
         ]);
+
+        $boutique = Boutique::findOrFail($request->boutique_id);
+
+        $data['proprietaire_id'] = $boutique->proprietaire_id;
 
         $data['type'] = $data['type'] ?? 'vente';
 
@@ -88,8 +116,9 @@ class ProprietaireBienController extends Controller
      */
     public function edit(Bien $bien)
     {
+        $boutiques = Boutique::all();
         $categories = Category::all();
-        return view('proprio.biens.edit', compact('categories', 'bien'));
+        return view('proprio.biens.edit', compact('categories', 'bien', 'boutiques'));
     }
 
     public function update(Request $request, Bien $bien)
@@ -104,12 +133,16 @@ class ProprietaireBienController extends Controller
     
             'adresse'            => 'nullable|string|max:255',
             'prix'               => 'required|numeric|min:0',
+            'stock'               => 'required|numeric|min:0',
             'type'               => 'nullable|in:vente,location',
     
-            'proprietaire_id'    => 'required|exists:users,id',
-    
+            'boutique_id'   => 'required|exists:boutiques,id',    
             'medias.*'           => 'nullable|mimes:jpg,jpeg,png,gif,mp4,mov,avi|max:20000',
         ]);
+
+        $boutique = Boutique::findOrFail($request->boutique_id);
+
+        $validated['proprietaire_id'] = $boutique->proprietaire_id;
     
         $bien->update($validated);
     

@@ -60,4 +60,21 @@ class MessageController extends Controller
         ]);
     }
 
+    public function unreadCount()
+    {
+        $user = Auth::user();
+
+        $count = Message::where('lu', false)
+            ->where('expediteur_id', '!=', $user->id)
+            ->whereHas('conversation', function ($q) use ($user) {
+                $q->where('participant1_id', $user->id)
+                  ->orWhere('participant2_id', $user->id);
+            })
+            ->count();
+
+        return response()->json([
+            'count' => $count
+        ]);
+    }
+
 }

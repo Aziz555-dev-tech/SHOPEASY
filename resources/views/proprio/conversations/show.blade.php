@@ -6,20 +6,7 @@
 <div class="container py-4">
     <div class="card shadow-lg">
         <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #005078;">
-            <h5 class="mb-0">
-                @if($interlocuteur->profil)
-                    <img src="{{ asset('storage/' . $interlocuteur->profil) }}" 
-                        alt="Photo de profil" 
-                        class="rounded-circle border" 
-                        style="width: 50px; height: 50px; object-fit: cover;">
-                @else
-                    <img src="{{ asset('assets/images/default_user.png') }}" 
-                        alt="Photo de profil" 
-                        class="rounded-circle border" 
-                        style="width: 50px; height: 50px; object-fit: cover;">
-                @endif
-                {{ $interlocuteur->name.' '.$interlocuteur->surname ?? 'Utilisateur' }}
-            </h5>
+            <h5 class="mb-0">Discussion avec {{ $interlocuteur->name ?? 'Utilisateur' }}</h5>
             <a href="{{ route('conversations.index') }}" class="btn btn-sm"><h2 class="text-light"><i class="bi bi-arrow-left-circle"></i></h2></a>
         </div>
 
@@ -30,7 +17,7 @@
                         <p class="mb-1">{{ $message->contenu }}</p>
                         <small class="d-block text-end text-muted" style="font-size: 0.75rem;">
                             <i>{{ $message->created_at->format('d/m/Y H:i') }}</i>
-                        </small>                        
+                        </small>  
                     </div>
                 </div>
             @endforeach

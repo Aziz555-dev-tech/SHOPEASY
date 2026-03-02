@@ -4,9 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>SIS | Propriétaire - @yield('title')</title>
+  <title>ShopEasy | Propriétaire - @yield('title')</title>
   
   <link rel="icon" href="{{ asset('assets/images/logo_sahashop.png') }}">
+
+  {{-- Leaflet CSS POUR LA LOCALISATION GEOGRAPHIQUE --}}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -232,22 +235,21 @@
         <i class="bi bi-building"></i><span class="nav-label">Biens</span>
       </a>
 
-      <a href="" class="nav-link-admin">
-        <i class="bi bi-currency-dollar"></i><span class="nav-label">Transactions</span>
+      <a href="{{ route('proprietaire.paiements') }}" class="nav-link-admin {{ request()->routeIs('proprietaire.paiements') ? 'active' : '' }}">
+        <i class="bi bi-currency-dollar"></i><span class="nav-label">Paiements</span>
       </a>
-
-      <a href="" class="nav-link-admin">
-        <i class="bi bi-stickies"></i><span class="nav-label">Articles</span>
-      </a>
-
-      <a href="{{ route('conversations.index') }}" class="nav-link-admin {{ request()->routeIs('conversations.index') ? 'active' : '' }}">
-        <i class="bi bi-chat-dots"></i> <span class="nav-label">Message</span>
-      </a>
+      
+      @include('components.messages-badge')
 
       <div class="mt-auto">
+
+        <a href="{{route('proprietaire.boutique.localisation') }}" class="nav-link-admin {{ request()->routeIs('proprietaire.boutique.localisation') ? 'active' : '' }}">
+          <i class="bi bi-geo-fill"></i><span class="nav-label">Localisation</span>
+        </a>
+
         <a href="{{route('parametres.index') }}" class="nav-link-admin {{ request()->routeIs('parametres.index') ? 'active' : '' }}">
           <i class="bi bi-gear"></i><span class="nav-label">Paramètres</span>
-        </a>
+        </a>      
 
         <a href="{{ route('admin.logout') }}" class="nav-link-admin"
            onclick="event.preventDefault();document.getElementById('logout-form').submit();" class="nav-link-admin">
@@ -282,22 +284,30 @@
       <div class="dropdown">
         <a class="d-flex align-items-center text-decoration-none" id="profileMenu" data-bs-toggle="dropdown" aria-expanded="false" href="#">
           <div class="me-3">
-            @if($user->profil)
-                <img src="{{ asset('storage/' . $user->profil) }}" 
+            @if($user->boutique?->logo)
+                <img src="{{ asset('storage/' . $user->boutique->logo) }}" 
+                     alt="Photo de profil" 
+                     class="rounded-circle border" 
+                     style="width: 50px; height: 50px; object-fit: cover;">
+            @elseif ($user?->profil)
+                <img src="{{ asset('storage/'. $user->profil) }}" 
                      alt="Photo de profil" 
                      class="rounded-circle border" 
                      style="width: 50px; height: 50px; object-fit: cover;">
             @else
-                <img src="{{ asset('assets/images/default_user.png') }}" 
-                     alt="Photo de profil" 
-                     class="rounded-circle border" 
-                     style="width: 50px; height: 50px; object-fit: cover;">
+              <img src="{{ asset('assets/images/default_user.png') }}" 
+              alt="Photo de profil" 
+              class="rounded-circle border" 
+              style="width: 50px; height: 50px; object-fit: cover;">
             @endif
         </div>
-          <div class="d-none d-md-block text-start">
-            <div style="font-weight:700">{{ auth()->user()->name ?? 'Admin' }}</div>
-            <small class="small-muted">{{ auth()->user()->email ?? '' }}</small>
-          </div>
+
+        <div class="d-none d-md-block text-start">
+          <small class="small-muted">
+            {{ $user->boutique->email ?? $user->email }}
+          </small>
+        </div>
+        
         </a>
         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileMenu">
           <li><a class="dropdown-item" href=""><i class="bi bi-person me-2"></i>Mon profil</a></li>
@@ -327,6 +337,8 @@
   </main>
 
   <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display:none;">@csrf</form>
+
+
 
   <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
@@ -391,5 +403,51 @@
 
   </script>
 
+    {{-- Compter et afficher les nouveaux messages non lus --}}
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+      
+          const badge = document.getElementById('messagesBadge');
+          if (!badge) return;
+      
+          async function loadUnreadCount() {
+              try {
+                  const response = await fetch('/messages/unread-count', {
+                      headers: {
+                          'X-Requested-With': 'XMLHttpRequest'
+                      }
+                  });
+      
+                  if (!response.ok) return;
+      
+                  const data = await response.json();
+      
+                  if (data.count > 0) {
+                      badge.textContent = data.count;
+                      badge.classList.remove('d-none');
+                  } else {
+                      badge.classList.add('d-none');
+                  }
+      
+              } catch (error) {
+                  console.error('Erreur badge messages:', error);
+              }
+          }
+      
+          // Chargement initial
+          loadUnreadCount();
+      
+          // Rafraîchissement toutes les 5 secondes (style Messenger)
+          setInterval(loadUnreadCount, 5000);
+      });
+    </script>
+
+
+    {{-- Leaflet JS --}}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+
+    @yield('scripts')
 </body>
 </html>

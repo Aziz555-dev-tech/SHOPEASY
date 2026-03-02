@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class ParametreController extends Controller
@@ -17,7 +18,10 @@ class ParametreController extends Controller
             $layout = 'layouts.admin';
         } elseif ($user->role === 'proprietaire') {
             $layout = 'layouts.proprio';
-        } else {
+        } elseif ($user->role === 'livreur') {
+            $layout = 'layouts.livreur';
+        } 
+        else {
             $layout = 'layouts.client';
         }
 
@@ -47,4 +51,42 @@ class ParametreController extends Controller
 
         return back()->with('success', 'Photo de profil mise à jour avec succès.');
     }
+
+    public function updateInfo(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->email = $request->email;
+        $user->save();
+
+        return back()->with('success', 'Email mis à jour avec succès.');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Mot de passe actuel incorrect']);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->must_change_password = false;
+        $user->save();
+
+        return back()->with('success', 'Mot de passe changé avec succès.');
+    }
+
 }
+
+
+

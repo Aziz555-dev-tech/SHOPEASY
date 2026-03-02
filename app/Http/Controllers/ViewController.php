@@ -57,7 +57,7 @@ class ViewController extends Controller
 
         // Base query avec relations
         $query = Bien::with(['categorie', 'sousCategorie', 'subType', 'medias'])
-        ->where('statut', '!=', 'attribue'); // Uniquement les biens dont le statut n'est pas 'attribue'
+        ->where('stock', '>', 0); // Uniquement les biens dont le stock est plus que 0
 
         // Filtrer par catégorie
         if ($categorieSlug) {

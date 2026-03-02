@@ -38,6 +38,46 @@
             </form>
         </div>
     </div>
+
+        <div class="card shadow-sm p-4 mt-4">
+            <h6>Email</h6>
+            <form action="{{ route('parametres.updateInfo') }}" method="POST">
+                @csrf
+                <input type="email" name="email" value="{{ $user->email }}" class="form-control mb-2">
+                <button class="btn btn-warning">Mettre à jour</button>
+            </form>
+        </div>
+
+        <div class="card shadow-sm p-4 mt-4">
+            <h6>Mot de passe</h6>
+            <form action="{{ route('parametres.updatePassword') }}" method="POST">
+                @csrf
+        
+                <input type="password" name="current_password" placeholder="Mot de passe actuel" class="form-control mb-2">
+        
+                <input type="password" name="password" placeholder="Nouveau mot de passe" class="form-control mb-2">
+        
+                <input type="password" name="password_confirmation" placeholder="Confirmer" class="form-control mb-2">
+        
+                <button class="btn btn-danger">Changer mot de passe</button>
+            </form>
+        </div>
+
+        @if($user->role === 'proprietaire')
+            <div class="card shadow-sm p-4 mt-4">
+                <h6>Logo Boutique</h6>
+
+                @if($user->boutique && $user->boutique->logo)
+                    <img src="{{ asset('storage/'.$user->boutique->logo) }}" width="100">
+                @endif
+
+                <form action="{{ route('parametres.updateBoutiqueLogo') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="file" name="logo" class="form-control mb-2">
+                    <button class="btn btn-primary">Changer logo</button>
+                </form>
+            </div>
+        @endif
 </div>
 @endsection
 

@@ -15,17 +15,17 @@
                    data-name="{{ $u->name }}"
                    data-surname="{{ $u->surname }}"
                    data-role="{{ ucfirst($u->role) }}"
-                   data-avatar="{{ $u->profil ? asset('storage/' . $u->profil) : asset('assets/images/default_user.png') }}"
+                   data-avatar="{{ $u->profil ? asset('storage/' . $u->profil) : asset('assets/images/PROFIL.png') }}"
                    data-id="{{ $u->id }}">
 
-                   <img src="{{ $u->profil ? asset('storage/' . $u->profil) : asset('assets/images/default_user.png') }}"
+                   <img src="{{ $u->profil ? asset('storage/' . $u->profil) : asset('assets/images/PROFIL.png') }}"
                    alt="Photo de profil"
                    class="rounded-circle"
                    width="50"
                    height="50">  
 
-                    <div class="small fw-semibold">{{ Str::limit($u->name, 10) }}</div>
-                    <div class="text-muted small">{{ ucfirst($u->role) }}</div>
+                <div class="small fw-semibold">{{ Str::limit($u->name, 10) }}</div>
+                <div class="text-muted small">{{ ucfirst($u->role) }}</div>
                 </a>
             </div>
         @empty
@@ -50,13 +50,13 @@
             @endphp
 
             <a href="{{ route('conversations.show', $conv->id) }}" 
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
 
                     {{-- Avatar de l’interlocuteur --}}
                     <img src="{{ $interlocuteur && $interlocuteur->profil 
                         ? asset('storage/' . $interlocuteur->profil) 
-                        : asset('assets/images/default_user.png') }}"
+                        : asset('assets/images/PROFIL.png') }}"
                         alt="Photo de profil"
                         class="rounded-circle me-3"
                         width="50"
@@ -90,6 +90,7 @@
 @endif
 
 </div>
+
 
 <style>
 .user-carousel::-webkit-scrollbar {
@@ -157,5 +158,4 @@
         </div>
       </div>
     </div>
-</div>
-  
+  </div>

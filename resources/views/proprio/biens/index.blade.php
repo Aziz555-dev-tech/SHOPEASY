@@ -9,23 +9,56 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <div class="">
-        <form action="{{ route('proprietaire.biens.create') }}" method="get">
-            <button class="btn btn-primary mb-3">
-                + Ajouter un bien
-            </button>
-        </form>
+    <div class="d-flex justify-content-between mb-3">
+        <div>
+            <form action="{{ route('proprietaire.biens.create') }}" method="get">
+                <button class="btn btn-sm btn-primary">
+                    + Ajouter un bien
+                </button>
+            </form>
+        </div>
 
+        @php
+            $filtreActif = request('disponibilite');
+        @endphp
+        <div>
+            <form method="GET" class="mb-3">
+                <div class="btn-group">
+            
+                    <a href="{{ route('proprietaire.biens.index') }}"
+                       class="btn btn-sm {{ $filtreActif == null ? 'btn-primary' : 'btn-outline-primary' }}">
+                        Tous
+                    </a>
+            
+                    <button name="disponibilite" value="disponible"
+                        class="btn btn-sm {{ $filtreActif == 'disponible' ? 'btn-success' : 'btn-outline-success' }}">
+                        Disponibles
+                    </button>
+            
+                    <button name="disponibilite" value="faible"
+                        class="btn btn-sm {{ $filtreActif == 'faible' ? 'btn-warning' : 'btn-outline-warning' }}">
+                        Faible stock
+                    </button>
+            
+                    <button name="disponibilite" value="epuise"
+                        class="btn btn-sm {{ $filtreActif == 'epuise' ? 'btn-danger' : 'btn-outline-danger' }}">
+                        Épuisés
+                    </button>
+            
+                </div>
+            </form>
+            
+        </div>
     
         {{-- Toggle view --}}
-        <div class="btn-group mb-3 justify-content-end" role="group">
-            <button id="btnList" type="button" class="btn btn-outline-primary active">Liste</button>
-            <button id="btnCards" type="button" class="btn btn-outline-primary">Cards</button>
+        <div class="btn-group btn-sm justify-content-end" role="group">
+            <button id="btnList" type="button" class="btn btn-sm btn-outline-primary active">Liste</button>
+            <button id="btnCards" type="button" class="btn btn-sm btn-outline-primary">Cards</button>
         </div>
     </div>
 
     {{-- LISTE --}}
-    <div id="view-list">
+    <div id="view-list">        
         <div class="table-responsive">
             <table class="table table-hover align-middle w-100">
                 <thead class="table-primary">
@@ -55,17 +88,36 @@
                                 👁 <span>Voir</span>
                             </button>
 
-                            @if($bien->statut === 'disponible')
+                            @if($bien->stock >= 5)
                                 <a href="{{ route('proprietaire.biens.edit', $bien->id) }}" class="btn btn-warning btn-sm mb-1" title="Modifier le bien" >
-                                    ✏️ <span>Modifier</span>
+                                    ✏️ <span></span>
                                 </a>
                                 <form action="{{ route('proprietaire.biens.destroy', $bien->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm mb-1" title="Supprimer le bien" onclick="return confirm('Voulez-vous vraiment supprimer ce bien ?')">🗑 <span>Supprimer</span></button>
+                                    <button type="submit" class="btn btn-danger btn-sm mb-1" title="Supprimer le bien" onclick="return confirm('Voulez-vous vraiment supprimer ce bien ?')">🗑 <span></span></button>
                                 </form>
-                            @else                                
-                                <span class="badge bg-danger p-1">Déjà vendu</span>
+                                <span class="badge bg-success p-1">{{ $bien->stock }} disponibles</span>
+                            @elseif ($bien->stock >= 1 && $bien->stock <5)                                
+                                <a href="{{ route('proprietaire.biens.edit', $bien->id) }}" class="btn btn-warning btn-sm mb-1" title="Modifier le bien" >
+                                    ✏️ <span></span>
+                                </a>
+                                <form action="{{ route('proprietaire.biens.destroy', $bien->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm mb-1" title="Supprimer le bien" onclick="return confirm('Voulez-vous vraiment supprimer ce bien ?')">🗑 <span></span></button>
+                                </form>
+                                <span class="badge bg-dark text-warning p-1">{{ $bien->stock }} disponible(s)</span>
+                            @else
+                                <a href="{{ route('proprietaire.biens.edit', $bien->id) }}" class="btn btn-warning btn-sm mb-1" title="Modifier le bien" >
+                                    ✏️ <span></span>
+                                </a>
+                                <form action="{{ route('proprietaire.biens.destroy', $bien->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm mb-1" title="Supprimer le bien" onclick="return confirm('Voulez-vous vraiment supprimer ce bien ?')">🗑 <span></span></button>
+                                </form>
+                                <span class="badge bg-danger p-1">Épuisé</span>
                             @endif
                         </td>
                     </tr>
@@ -83,7 +135,7 @@
                 <div class="card shadow-lg h-100 animate__animated animate__fade-up-right">
                     
                     {{-- Galerie réduite dans la card --}}
-                    <div class="row g-1 p-2">
+                    <div class="row card-media g-1 p-2">
 
                         @php
                             $medias = $bien->medias ?? collect();
@@ -132,18 +184,38 @@
                             👁
                         </button>
 
-                        @if($bien->statut === 'disponible')
-                            <a href="{{ route('proprietaire.biens.edit', $bien->id) }}" class="btn btn-warning btn-sm mb-1">
-                                ✏️
-                            </a>
-                            <form action="{{ route('proprietaire.biens.destroy', $bien->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm mb-1" onclick="return confirm('Voulez-vous vraiment supprimer ce bien ?')"> 🗑 </button>
-                            </form>
-                        @else                                
-                            <span class="badge bg-danger p-1">Déjà vendu</span>
-                        @endif
+
+                        @if($bien->stock >= 5)
+                        <a href="{{ route('proprietaire.biens.edit', $bien->id) }}" class="btn btn-warning btn-sm mb-1" title="Modifier le bien" >
+                            ✏️ <span></span>
+                        </a>
+                        <form action="{{ route('proprietaire.biens.destroy', $bien->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm mb-1" title="Supprimer le bien" onclick="return confirm('Voulez-vous vraiment supprimer ce bien ?')">🗑 <span></span></button>
+                        </form>
+                        <span class="badge bg-success p-1">{{ $bien->stock }} disponibles</span>
+                    @elseif ($bien->stock >= 1 && $bien->stock <5)                                
+                        <a href="{{ route('proprietaire.biens.edit', $bien->id) }}" class="btn btn-warning btn-sm mb-1" title="Modifier le bien" >
+                            ✏️ <span></span>
+                        </a>
+                        <form action="{{ route('proprietaire.biens.destroy', $bien->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm mb-1" title="Supprimer le bien" onclick="return confirm('Voulez-vous vraiment supprimer ce bien ?')">🗑 <span></span></button>
+                        </form>
+                        <span class="badge bg-dark text-warning p-1">{{ $bien->stock }} disponible(s)</span>
+                    @else
+                        <a href="{{ route('proprietaire.biens.edit', $bien->id) }}" class="btn btn-warning btn-sm mb-1" title="Modifier le bien" >
+                            ✏️ <span></span>
+                        </a>
+                        <form action="{{ route('proprietaire.biens.destroy', $bien->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm mb-1" title="Supprimer le bien" onclick="return confirm('Voulez-vous vraiment supprimer ce bien ?')">🗑 <span></span></button>
+                        </form>
+                        <span class="badge bg-danger p-1">Épuisé</span>
+                    @endif
                     </div>
                 </div>
             </div>
@@ -202,6 +274,17 @@
             color: #000;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .card-media {
+            height: 320px;
+            overflow: hidden;
+        }
+
+        .card-media img, .card-media video {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
         }
 
 

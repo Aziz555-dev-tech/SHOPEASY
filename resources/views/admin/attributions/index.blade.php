@@ -4,14 +4,17 @@
 
 @section('content')
 <div class="container mt-1">
-    <h4 class="mb-2">Liste des attributions</h4>
 
     <div class="d-flex justify-content-between mb-3">
-        <a href="{{ route('admin.attributions.create') }}" class="btn btn-primary">Nouvelle attribution</a>
+        {{-- <a href="{{ route('admin.attributions.create') }}" class="btn btn-primary">Nouvelle attribution</a> --}}
+
+        <div>
+            <h4 class="mb-2">Liste des attributions</h4>
+        </div>
 
         <div class="btn-group" role="group" aria-label="Affichage">
-            <button type="button" class="btn btn-outline-primary active" id="btn-list">Liste</button>
-            <button type="button" class="btn btn-outline-primary" id="btn-cards">Cards</button>
+            <button type="button" class="btn btn-sm btn-outline-primary active" id="btn-list">Liste</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="btn-cards">Cards</button>
         </div>
     </div>
 
@@ -38,6 +41,7 @@
                     <th>Client</th>
                     <th>Date de liaison</th>
                     <th>Prix</th>
+                    <th>Stock</th>
                     <th>Statut du bien</th>
                     <th>Actions</th>
                 </tr>
@@ -52,6 +56,7 @@
                         <td>{{ $attribution->created_at->format('d/m/Y H:i') }}</td>
 
                         <td>{{ number_format($attribution->prix ?? 0, 0, ",", " ") }} <span class="fw-semibold">FCFA</span></td>
+                        <td>{{ $attribution->bien->stock }}</td>
                         <td>{{ $attribution->bien->statut }}</td>
                         <td>
                             @if($attribution->status === 'active')
@@ -107,7 +112,7 @@
                     <div class="card shadow-sm border-0 h-100 animate__animated animate__fadeInUp">
                         
                         {{-- Galerie réduite du bien attribué --}}
-                        <div class="row g-1 p-2">
+                        <div class="row card-media g-1 p-2">
                             @php
                                 $medias = $attribution->bien?->medias ?? collect();
                                 $mediasPreview = $medias->take(4);
@@ -275,6 +280,17 @@
         color: #000;
         font-weight: bold;
         cursor: pointer;
+    }
+
+    .card-media {
+        height: 320px;
+        overflow: hidden;
+    }
+
+    .card-media {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
 

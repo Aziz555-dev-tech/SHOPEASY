@@ -263,36 +263,15 @@
         
                         <li><a class="nav-link {{ request()->is('accueil') ? 'active' : '' }}" href="/accueil">Accueil</a></li>
                         <li><a class="nav-link {{ request()->is('apropos') ? 'active' : '' }}" href="/apropos">A Propos</a></li>
-        
-                        <!-- BOUTIQUES (MEGA MENU) -->
-                        <li class="dropdown">
-                            <a class="nav-link dropdown-toggle">Boutiques</a>
-                            <div class="mega-menu">
-                                <div class="mega-row">
-                                    <div class="mega-col">
-                                        <h6>Mode & Beauté</h6>
-                                        <a href="/boutiques/mode">Boutiques de Mode</a>
-                                        <a href="/boutiques/beaute">Instituts Beauté</a>
-                                        <a href="/boutiques/chaussures">Chaussures</a>
-                                        <a href="/boutiques/accessoires">Accessoires</a>
-                                    </div>
-                                    <div class="mega-col">
-                                        <h6>Technologie</h6>
-                                        <a href="/boutiques/electronique">Électronique</a>
-                                        <a href="/boutiques/telephonie">Téléphonie</a>
-                                        <a href="/boutiques/informatique">Informatique</a>
-                                        <a href="/boutiques/gaming">Gaming</a>
-                                    </div>
-                                    <div class="mega-col">
-                                        <h6>Maison & Services</h6>
-                                        <a href="/boutiques/meubles">Meubles</a>
-                                        <a href="/boutiques/electromenager">Électroménager</a>
-                                        <a href="/boutiques/decoration">Décoration</a>
-                                        <a href="/boutiques/services">Services Divers</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>                       
+    
+                        
+                        <li>
+                            <a class="nav-link {{ request()->is('boutiques*') ? 'active' : '' }}"
+                               href="{{ route('boutiques.index') }}">
+                               Boutiques
+                            </a>
+                        </li>
+                          
 
                         <li class="dropdown">
                             <a class="nav-link dropdown-toggle">Produits</a>
@@ -333,6 +312,14 @@
                     <!-- ACTIONS DROITES -->
                     <div class="nav-buttons">       
                         @auth
+                            @if (Auth::user()->role === "client")
+                                <a href="{{ route('client.dashboard') }}" title="Mon dashboard"><i class="bi bi-shop fs-2 text-light"></i></a>
+                            @elseif (Auth::user()->role === "proprietaire")
+                                <a href="{{ route('proprietaire.dashboard') }}" title="Mon dashboard"><i class="bi bi-shop fs-2 text-light"></i></a>
+                            @elseif (Auth::user()->role === "admin")
+                                <a href="{{ route('admin.dashboard.index') }}" title="Mon dashboard"><i class="bi bi-shop fs-2 text-light"></i></a>
+                            @endif
+                            
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-light">Déconnexion</button>

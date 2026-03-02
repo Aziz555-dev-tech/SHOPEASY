@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Attribution;
 use App\Models\Bien;
+use App\Models\Boutique;
+use App\Models\Livraison;
 use App\Models\Paiement;
 use App\Models\Transaction;
 use App\Models\User;
@@ -12,6 +14,7 @@ use App\Notifications\Admin\PaiementEffectueNotification;
 use App\Notifications\Client\PaiementReussiClient;
 use App\Notifications\Proprietaire\PaiementRecuProprietaire;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class ClientPanierController extends Controller
@@ -35,9 +38,9 @@ class ClientPanierController extends Controller
         $montantAvecCommission = $amount * 1.05; // ajoute 5% de commission
         $montantCentimes = (int) round($montantAvecCommission); // Fedapay exige un entier
     
-        if ($montantCentimes >= 300000) {
+        if ($montantCentimes  < 100 || $montantCentimes >= 300000) {
             return redirect()->route('catalogue')
-                ->with('error', 'Pour les paiements via Momo (Fedapay), le montant ne doit pas dépasser 300000 FCFA. Veuillez essayer Paypal ou un virement bancaire.');
+                ->with('error', 'Pour les paiements via Momo (Fedapay), le montant minimum accepté est 100 FCFA et celui maximum est 300000 FCFA.');
         }
     
         // Transaction interne locale bdd
@@ -118,12 +121,15 @@ class ClientPanierController extends Controller
             $bien = Bien::find($item['id']);
             if (!$bien) continue;
 
-            $bien->update(['statut' => 'attribue']);
+            $qteRestante = $bien->stock - $item['qte'];
+
+            $bien->update(['stock' => $qteRestante]);
 
             $attribution = Attribution::create([
                 'bien_id'          => $bien->id,
                 'client_id'        => $transaction->user_id,
                 'prix' => $item['price'] * $item['qte'],
+                'stock' => $item['qte'],        // 'stock' ici représente la quantité payé
                 'proprietaire_id'  => $bien->proprietaire_id,
                 'date_attribution' => now()->toDateString(),
                 'statut_paiement'  => 'paye',
@@ -132,13 +138,13 @@ class ClientPanierController extends Controller
             $paiement = Paiement::create([
                 'attribution_id'  => $attribution->id,
                 'client_id'       => $transaction->user_id,
-                'montant'         => $item['price'] * 1.05,
+                'montant'         => ($item['price'] * 1.05) * $item['qte'],
                 'reference'       => 'pay_' . Str::uuid(),
                 'mode'            => 'mobile_money',
                 'status_paiement' => 'paye',
                 'date_paiement'   => now(),
                 'details'         => [
-                    'commission' => round($item['price'] * 0.05, 2),
+                    'commission' => round($item['price'] * 0.05, 2) * $item['qte'],
                     'quantite' => $item['qte'],
                 ]
             ]);
@@ -155,7 +161,93 @@ class ClientPanierController extends Controller
         }
 
         return redirect()->route('catalogue')
-            ->with('success', "Paiement confirmé via FedaPay.");
+        ->with('success', "Paiement confirmé via FedaPay.")
+        ->with('clear_cart', true);
+        
     }
+
+    protected function assignerLivreurLivraison(Livraison $livraison)
+    {
+        $boutique = Boutique::findOrFail($livraison->boutique_id);
+    
+        $livreur = User::where('role', 'livreur')
+            ->where('is_available', true)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->selectRaw("
+                users.*,
+                (6371 * acos(
+                    cos(radians(?)) * cos(radians(latitude)) *
+                    cos(radians(longitude) - radians(?)) +
+                    sin(radians(?)) * sin(radians(latitude))
+                )) AS distance
+            ", [
+                $boutique->latitude,
+                $boutique->longitude,
+                $boutique->latitude
+            ])
+            ->orderBy('distance')
+            ->first();
+    
+        if (!$livreur) {
+            return;
+        }
+    
+        // 🔗 Liaison livraison ↔ livreur
+        $livraison->update([
+            'livreur_id'  => $livreur->id,
+            'statut'      => 'assignee',
+            'assignee_at' => now(),
+        ]);
+    
+        $livreur->update([
+            'is_available' => false
+        ]);
+    }
+    
+
+    public function choisir()
+    {
+        return view('client.livraison');
+    }
+    
+    public function SaveLivraison(Request $request)
+    {
+        $request->validate([
+            'adresse' => 'required|string|max:255',
+            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
+        ]);
+
+        $clientID = Auth::id();
+
+        // Récupération du dernier paiement de l'utilisateur connecté
+        $paiement = Paiement::where('client_id', $clientID)->latest()->firstOrfail();
+
+        // Boutique liée à ce paiement (via relation attribution->bien)
+        $attribution = $paiement->attribution;
+        $boutique = Boutique::where('proprietaire_id', $attribution->proprietaire_id)->firsOrFail();
+
+        // Création de la livraison
+        $livraison = Livraison::create([
+            'paiement_id' => $paiement->id,
+            'boutique_id' => $boutique->id,
+            'client_id' => $clientID,
+            'adresse' => $request->adresse,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'statut' => 'en_attente',
+            'assignee_at',
+            'livree_at',
+        ]);
+
+        // ASSIGNATION AUTOMATIQUE DU LIVREUR
+
+        $this->assignerLivreurLivraison($livraison);
+
+        return redirect()->route('client.dashboard')->with('success', 'Livraison enrégistrée et en cours de traitement.');
+
+    }
+
     
 }

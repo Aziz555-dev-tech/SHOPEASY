@@ -9,6 +9,9 @@
 
   <link rel="icon" href="{{ asset('assets/images/logo_sahashop.png') }}">
 
+    {{-- Leaflet CSS POUR LA LOCALISATION GEOGRAPHIQUE --}}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -226,18 +229,23 @@
             <i class="bi bi-speedometer2"></i><span class="nav-label">Dashboard</span>
         </a>
 
-        <a href="{{ route('client.achats') }}" class="nav-link-client {{ request()->routeIs('client.achats') ? 'active' : '' }}">
+        <a href="{{ route('client.paiements') }}" class="nav-link-client {{ request()->routeIs('client.paiements') ? 'active' : '' }}">
           <i class="bi bi-cart"></i><span class="nav-label">Mes achats</span>
         </a>
 
+        @include('components.messages-badge')
 
-        <a href="" class="nav-link-client">
-            <i class="bi bi-flag-fill"></i><span class="nav-label">Signaler</span>
-        </a>
+        {{-- <a href="{{route('client.adresse.localisation') }}" class="nav-link-client {{ request()->routeIs('client.adresse.localisation') ? 'active' : '' }}">
+          <i class="bi bi-geo-fill"></i><span class="nav-label">Localisation</span>
+        </a> --}}
 
         <a href="{{route('parametres.index') }}" class="nav-link-client {{ request()->routeIs('parametres.index') ? 'active' : '' }}">
           <i class="bi bi-gear"></i><span class="nav-label">Paramètres</span>
         </a>
+
+        {{-- <a href="{{route('client.livraisons.tracking') }}" class="nav-link-client {{ request()->routeIs('client.livraisons.tracking') ? 'active' : '' }}">
+          <i class="bi bi-location"></i><span class="nav-label">Suivie</span>
+        </a> --}}
 
         <a href="{{ url('/') }}" class="nav-link-client">
             <i class="bi bi-globe"></i><span class="nav-label">Accueil</span>
@@ -386,5 +394,50 @@
     }
 
   </script>
+
+
+  {{-- Compter et afficher les nouveaux messages non lus --}}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    
+        const badge = document.getElementById('messagesBadge');
+        if (!badge) return;
+    
+        async function loadUnreadCount() {
+            try {
+                const response = await fetch('/messages/unread-count', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+    
+                if (!response.ok) return;
+    
+                const data = await response.json();
+    
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.classList.remove('d-none');
+                } else {
+                    badge.classList.add('d-none');
+                }
+    
+            } catch (error) {
+                console.error('Erreur badge messages:', error);
+            }
+        }
+    
+        // Chargement initial
+        loadUnreadCount();
+    
+        // Rafraîchissement toutes les 5 secondes (style Messenger)
+        setInterval(loadUnreadCount, 5000);
+    });
+  </script>
+
+  {{-- Leaflet JS --}}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    @yield('scripts')
 </body>
 </html>

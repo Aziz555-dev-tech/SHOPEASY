@@ -20,18 +20,14 @@
               </textarea>
             </div>
   
-            <!-- PROPRIÉTAIRE -->
+            {{-- BOUTIQUE --}}
             <div class="mb-3">
-              <label class="form-label">Propriétaire</label>
-              <select name="proprietaire_id" class="form-select" required>
-                <option value="" disabled>-- Sélectionnez un propriétaire --</option>
-  
-                @foreach($proprietaires as $proprio)
-                  <option value="{{ $proprio->id }}"
-                    {{ $bien->proprietaire_id == $proprio->id ? 'selected' : '' }}>
-                      {{ $proprio->name }} {{ $proprio->surname }}
-                  </option>
-                @endforeach
+              <label for="boutique_id" class="form-label">Boutique</label>
+              <select name="boutique_id" id="boutique_id" class="form-select" required>
+                  <option value="" disabled selected>-- Sélectionnez la boutique --</option>
+                  @foreach($boutiques as $btq)
+                      <option value="{{ $btq->id }}">{{ $btq->nom }}</option>
+                  @endforeach
               </select>
             </div>
   

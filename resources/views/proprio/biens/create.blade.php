@@ -22,10 +22,15 @@
             $id_proprietaire = Auth::id();
         @endphp
 
-        <!-- PROPRIETAIRE -->
+        {{-- BOUTIQUE --}}
         <div class="mb-3">
-            <label for="proprietaire_id" class="form-label">Propriétaire</label>
-            <input type="text" value="{{ $id_proprietaire }}" name="proprietaire_id" id="proprietaire_id" hidden>
+            <label for="boutique_id" class="form-label">Boutique</label>
+            <select name="boutique_id" id="boutique_id" class="form-select" required>
+                <option value="" disabled selected>-- Sélectionnez la boutique --</option>
+                @foreach($boutiques as $btq)
+                    <option value="{{ $btq->id }}">{{ $btq->nom }}</option>
+                @endforeach
+            </select>
         </div>
 
         <select id="categorySelect" name="categorie_id" class="form-control">
@@ -46,8 +51,14 @@
       
       <div class="mb-3">
         <label for="prix" class="form-label">Prix</label>
-        <input type="number" step="0.01" name="prix" id="prix" class="form-control">
+        <input type="number" step="0.01" name="prix" id="prix" class="form-control" required>
       </div>
+
+      <div class="mb-3">
+        <label for="stock" class="form-label">Stock</label>
+        <input type="number" step="0.01" name="stock" id="stock" class="form-control" required>
+      </div>
+
 
       <div class="mb-3">
         <label for="adresse" class="form-label">Adresse</label>
@@ -64,11 +75,10 @@
             <small class="text-muted">Formats acceptés : jpg, png, mp4...</small>
         </div>
 
-    </div>
 
     <div class="modal-footer">
         <button type="submit" class="btn btn-success">Enregistrer</button>
-        <a href="{{ route('admin.biens.index') }}" class="btn btn-secondary">⬅ Annuler</a>
+        <a href="{{ route('proprietaire.biens.index') }}" class="btn btn-secondary">⬅ Annuler</a>
     </div>
 
 </form>

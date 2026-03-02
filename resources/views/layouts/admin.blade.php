@@ -6,7 +6,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>ShopEasy | Admin - @yield('title')</title>
 
-  <link rel="icon" href="{{ asset('') }}">
+  <link rel="icon" href="{{ asset('assets/images/logo_sahashop.png') }}">
 
   {{-- AOS --}}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
@@ -208,6 +208,22 @@
     }
 
 
+    .modal-xl {
+        max-width: 90vw;
+    }
+
+    /* Empêche le clignotement au chargement */
+    .carousel-inner .carousel-item {
+        visibility: hidden;
+    }
+
+    .carousel-inner .carousel-item.active {
+        visibility: visible;
+    }
+
+
+
+
   </style>
 </head>
 <body>
@@ -234,13 +250,21 @@
         <i class="bi bi-building"></i><span class="nav-label">Biens</span>
       </a>
 
+      <a href="{{ route('admin.boutiques.index') }}" class="nav-link-admin {{ request()->routeIs('admin.boutiques.*') ? 'active' : '' }}">
+        <i class="bi bi-shop"></i>Boutiques</span>
+      </a>
+
       <a href="{{ route('admin.attributions.index') }}" class="nav-link-admin {{ request()->routeIs('admin.attributions.*') ? 'active' : '' }}">
         <i class="bi bi-house-add"></i> <span class="nav-label">Attributions</span>
       </a>
 
-      <a href="" class="nav-link-admin">
-        <i class="bi bi-currency-dollar"></i><span class="nav-label">Transactions</span>
+      <a href="{{ route('admin.paiements') }}" class="nav-link-admin {{ request()->routeIs('admin.paiements') }}">
+        <i class="bi bi-currency-dollar"></i><span class="nav-label">Paiements</span>
       </a>
+
+      {{-- <a href="{{route('admin.livreur.localisation') }}" class="nav-link-admin {{ request()->routeIs('admin.livreur.localisation') ? 'active' : '' }}">
+        <i class="bi bi-geo-fill"></i><span class="nav-label">Localisation</span>
+      </a> --}}
 
       <a href="{{ route('admin.posts.index') }}" class="nav-link-admin {{ request()->routeIs('admin.posts.index') ? 'active' : '' }}">
         <i class="bi bi-stickies"></i><span class="nav-label">Articles</span>
@@ -250,9 +274,7 @@
         <i class="bi bi-person"></i> <span class="nav-label">Prestations</span>
       </a>
 
-      <a href="{{route('conversations.index') }}" class=" nav-link-admin {{ request()->routeIs('conversations.index') ? 'active' : '' }}">
-        <i class="bi bi-chat-dots"></i><span class="nav-label">Messages</span>
-      </a>
+      @include('components.messages-badge')
 
       <div class="mt-auto">
 
@@ -319,14 +341,14 @@
                 title="Ajouter un propriétaire">
             <i class="bi bi-person-plus fs-5 text-primary"></i>
         </button>
-    
-        <!-- Ajouter Paiement -->
+
+        <!-- Ajouter Livreur -->
         <button class="btn btn-light shadow-sm px-3 py-2 rounded-circle"
-                data-bs-toggle="modal" data-bs-target="#paiementModal"
-                title="Ajouter un paiement">
-            <i class="bi bi-cash-stack fs-5 text-success"></i>
+                data-bs-toggle="modal" data-bs-target="#modalAddLivreur"
+                title="Ajouter un livreur">
+            <i class="bi bi-truck fs-5 text-success"></i>
         </button>
-    
+            
         <!-- Reset Password -->
         <button class="btn btn-light shadow-sm px-3 py-2 rounded-circle"
                 data-bs-toggle="modal" data-bs-target="#modalResetPassword"
@@ -426,6 +448,8 @@
                         <label for="email" class="mt-2">Email</label>
                         <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror" required value="{{ old('email') }}">
                         @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                        <input type="hidden" id="role" name="role" value="proprietaire">
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-success">Enregistrer</button>
@@ -434,6 +458,44 @@
                 </form>
             </div>
         </div>
+    </div>
+
+    <!-- ================= Modal Ajouter Livreur ================= -->
+    <div class="modal fade" id="modalAddLivreur" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <form method="POST" action="{{ route('admin.users.store') }}">
+                  @csrf
+                  <div class="modal-header">
+                      <h5 class="modal-title">Ajouter un livreur</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                      <label for="name">Nom</label>
+                      <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+                      @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                      <label for="surname" class="mt-2">Prénom</label>
+                      <input type="text" id="surname" name="surname" class="form-control @error('surname') is-invalid @enderror" value="{{ old('surname') }}" required>
+                      @error('surname') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                      <label for="telephone" class="mt-2">Téléphone</label>
+                      <input type="number" id="telephone" name="telephone" class="form-control @error('telephone') is-invalid @enderror" value="{{ old('telephone') }}" required>
+                      @error('telephone') <div class="invalid-f                                                  eedback">{{ $message }}</div> @enderror
+
+                      <label for="email" class="mt-2">Email</label>
+                      <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror" required value="{{ old('email') }}">
+                      @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                      <input type="hidden" id="role" name="role" value="livreur">
+                  </div>
+                  <div class="modal-footer">
+                      <button type="submit" class="btn btn-success">Enregistrer</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                  </div>
+              </form>
+          </div>
+      </div>
     </div>
 
     <!-- ================= Modal Ajouter Bien ================= -->
@@ -527,7 +589,7 @@
 
 
     
-  <script>
+  <script>  // Script pour afficher automatiquement les subCategories lors de createBien
     document.addEventListener("DOMContentLoaded", () => {
     
         // Chargement des categories au chargement
@@ -579,11 +641,8 @@
         });
     
     });
-  </script>
-        
+  </script>      
     
-
-
   <!-- SCRIPTS -->
   <script>  // Script pour gérer la sidebar 
     (function(){
@@ -668,6 +727,45 @@
         });
     });  
   </script> 
+
+    {{-- Compter et afficher les nouveaux messages non lus --}}
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+      
+          const badge = document.getElementById('messagesBadge');
+          if (!badge) return;
+      
+          async function loadUnreadCount() {
+              try {
+                  const response = await fetch('/messages/unread-count', {
+                      headers: {
+                          'X-Requested-With': 'XMLHttpRequest'
+                      }
+                  });
+      
+                  if (!response.ok) return;
+      
+                  const data = await response.json();
+      
+                  if (data.count > 0) {
+                      badge.textContent = data.count;
+                      badge.classList.remove('d-none');
+                  } else {
+                      badge.classList.add('d-none');
+                  }
+      
+              } catch (error) {
+                  console.error('Erreur badge messages:', error);
+              }
+          }
+      
+          // Chargement initial
+          loadUnreadCount();
+      
+          // Rafraîchissement toutes les 5 secondes (style Messenger)
+          setInterval(loadUnreadCount, 5000);
+      });
+    </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 

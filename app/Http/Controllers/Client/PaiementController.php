@@ -12,10 +12,26 @@ use App\Notifications\Admin\PaiementEffectueNotification;
 use App\Notifications\Client\PaiementReussiClient;
 use App\Notifications\Proprietaire\PaiementRecuProprietaire;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class PaiementController extends Controller
 {
+
+    public function index()
+    {
+        $clientId = Auth::id();
+
+        $paiements = Paiement::where('client_id', $clientId)
+            ->with([
+                'attribution.bien.proprietaire',
+                'attribution',
+            ])
+            ->latest()
+            ->get();
+
+        return view('client.paiement.index', compact('paiements'));
+    }
 
     // 1. Payer le panier via PAYPAL (multi-biens)
 

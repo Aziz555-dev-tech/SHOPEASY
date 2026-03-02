@@ -10,10 +10,13 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
+    protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('stock:check-low')
+            ->everyFourHours()    // Tous les 4 heures donc 6 fois / jour
+            ->withoutOverlapping(); // évite doublons
     }
+    
 
     /**
      * Register the commands for the application.
@@ -24,4 +27,6 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
+    
 }

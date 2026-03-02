@@ -48,24 +48,24 @@
                 <div class="hero-visual">
                     <div class="hero-carousel">
                         <div class="carousel-container" id="heroCarousel">
-                            <div class="carousel-slide active" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800');">
+                            <div class="carousel-slide active" style="background-image: url('{{ asset('assets/images/a.jpg') }}');">
                                 <div class="carousel-slide-content">
                                     <h3>Boutiques Modernes</h3>
                                     <p>Créez une boutique professionnelle adaptée à votre marque</p>
                                 </div>
                             </div>
-                            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800');">
+                            <div class="carousel-slide" style="background-image: url('{{ asset('assets/images/b.jpg') }}');">
                                 <div class="carousel-slide-content">
                                     <h3>Commerce Simplifié</h3>
                                     <p>Gérez vos ventes avec des outils intuitifs et puissants</p>
                                 </div>
                             </div>
-                            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800');">
+                            <div class="carousel-slide" style="background-image:  url('{{ asset('assets/images/c.jpg') }}');">
                                 <div class="carousel-slide-content">
                                     <h3>Marché Africain</h3>
                                     <p>Connectez-vous à des millions de clients potentiels</p>
                                 </div>
-                            </div>
+                            </div>                   
                         </div>
                         <div class="carousel-indicators">
                             <div class="carousel-indicator active" onclick="goToSlide(0)"></div>
@@ -146,11 +146,12 @@
                 <div class="steps-content">
                     <div class="step-content active" data-step="0">
                         <div class="step-info">
-                            <h3>Lancez votre boutique en un instant</h3>
+                            <h3>Lancez et faites valider votre boutique en un instant</h3>
                             <p>
-                                Inscrivez-vous gratuitement et mettez votre boutique en ligne en quelques clics. 
-                                Vous pouvez y ajouter vos ebooks, formations, vidéos, templates... ou choisir parmi des 
-                                centaines de produits PLR déjà prêts. Personnalisez, fixez vos prix et démarrez sans attendre.
+                                Renseigner et soummetez le formulaire à l'adresse <a href="{{ route('contact') }}">Créer ma boutique</a> 
+                                puis confirmez votre identité au service administrative de ShopEasy pour créer et configurer votre boutique.
+                                Vous pouvez y ajouter vos biens à vendre et partager sur les réseaux sociaux pour cibler plus de clien particulier.
+                                Personnalisez, fixez vos prix et démarrez sans attendre.
                             </p>
                         </div>
                         <div class="step-visual">
@@ -224,7 +225,7 @@
                     </div>
                     <div class="feature-content">
                         <h3>Workflows automatisés</h3>
-                        <p>Automatisez vos ventes : emails après achat, offres complémentaires, relances…</p>
+                        <p>Automatisez vos ventes : emails après chaque achat, offres et générations automatique de reçu de paiement…</p>
                     </div>
                 </div>
                 <div class="feature-card">
@@ -232,8 +233,8 @@
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <div class="feature-content">
-                        <h3>Pixels de conversion</h3>
-                        <p>Ajoutez vos pixels Facebook, Google, TikTok pour suivre vos résultats.</p>
+                        <h3>Historique des flux</h3>
+                        <p>Garder l</p>
                     </div>
                 </div>
                 <div class="feature-card">

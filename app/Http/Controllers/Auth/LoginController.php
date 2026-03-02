@@ -18,6 +18,34 @@ class LoginController extends Controller
         return view('auth.clientLogin');
     }
 
+    public function showLoginFormLivreur()
+    {
+        return view('auth.livreurLogin');
+    }
+
+    public function loginLivreur(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+        if(Auth::attempt($credentials, $request->filled('remember'))) {
+            // On vérifie si l'user doit changer son mot de passe
+            if(Auth::user()->must_change_password)
+            {
+                return redirect()->route('password.change.form');
+            }
+
+            return redirect()->intended('livreur/dashboard');
+        }
+
+        return back()->with('error', 'Email ou mot de passe incorrecte.');
+    }
+
+
+
     public function login(Request $request)
     {
         $request->validate([

@@ -18,13 +18,13 @@
             <textarea name="description" id="description" class="form-control"></textarea>
         </div>
 
-        <!-- PROPRIETAIRE -->
+        {{-- BOUTIQUE --}}
         <div class="mb-3">
-            <label for="proprietaire_id" class="form-label">Propriétaire</label>
-            <select name="proprietaire_id" id="proprietaire_id" class="form-select" required>
-                <option value="" disabled selected>-- Sélectionnez un propriétaire --</option>
-                @foreach($proprietaires as $proprio)
-                    <option value="{{ $proprio->id }}">{{ $proprio->name ." ". $proprio->surname }}</option>
+            <label for="boutique_id" class="form-label">Boutique</label>
+            <select name="boutique_id" id="boutique_id" class="form-select" required>
+                <option value="" disabled selected>-- Sélectionnez la boutique --</option>
+                @foreach($boutiques as $btq)
+                    <option value="{{ $btq->id }}">{{ $btq->nom }}</option>
                 @endforeach
             </select>
         </div>

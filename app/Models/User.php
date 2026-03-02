@@ -13,8 +13,19 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'surname', 'telephone', 'password',  'role', 'must_change_password', 'profil', 'email',
+        'name', 
+        'surname',
+        'telephone',
+        'password', 
+        'role',
+        'must_change_password',
+        'profil',
+        'email',
+        'latitude',
+        'longitude',
+        'is_available',  // disponibilité du livreur
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -59,6 +70,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(Paiement::class, 'client_id');
     }
+
+    public function boutique()
+    {
+        return $this->hasOne(Boutique::class, 'proprietaire_id');
+    }
+
+
+    public function isLivreur()
+    {
+        return $this->role === 'livreur';
+    }
+
     
 
     /**

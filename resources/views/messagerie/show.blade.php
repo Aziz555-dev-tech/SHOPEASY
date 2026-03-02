@@ -3,6 +3,7 @@
         'proprietaire' => 'layouts.proprietaire',
         'client' => 'layouts.client',
         'admin' => 'layouts.admin',
+        'livreur' => 'layouts.livreur'
         default => 'layouts.app',
     };
 

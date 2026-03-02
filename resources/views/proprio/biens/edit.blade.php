@@ -23,12 +23,17 @@
             @php
               $proprietaire_id = Auth::id();
             @endphp
-  
-            <!-- PROPRIÉTAIRE -->
-            <div class="mb-3">
-              <label class="form-label">Propriétaire</label>
-              <input type="text" name="proprietaire_id" value="{{ $proprietaire_id }}" hidden>
-            </div>
+
+          {{-- BOUTIQUE --}}
+          <div class="mb-3">
+            <label for="boutique_id" class="form-label">Boutique</label>
+            <select name="boutique_id" id="boutique_id" class="form-select" required>
+                <option value="" disabled selected>-- Sélectionnez la boutique --</option>
+                @foreach($boutiques as $btq)
+                    <option value="{{ $btq->id }}">{{ $btq->nom }}</option>
+                @endforeach
+            </select>
+        </div>
   
             <select id="categorySelect" name="categorie_id" class="form-control">
               <option value="">-- Choisir une catégorie --</option>
@@ -53,9 +58,16 @@
                      class="form-control"
                      value="{{ old('prix', $bien->prix) }}" required>
             </div>
+
+            <div class="mb-3">
+              <label class="form-label">Stock</label>
+              <input type="number" step="1" name="stock"
+                     class="form-control"
+                     value="{{ old('stock', $bien->stock) }}" required>
+            </div>
   
             <div class="mb-3">
-              <label class="form-label">Adresse (Facultatif)</label>
+              <label class="form-label">Adresse</label>
               <input type="text" name="adresse" class="form-control" value="{{ old('adresse', $bien->adresse) }}" required>
             </div>
   
@@ -97,7 +109,7 @@
             <!-- VALIDATION -->
             <div class="modal-footer">
               <button type="submit" class="btn btn-success">Mettre à jour</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+              <a href="{{ route('proprietaire.biens.index') }}" class="btn btn-secondary">⬅ Annuler</a>
             </div>
   
         </form>

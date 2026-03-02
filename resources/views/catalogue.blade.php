@@ -40,27 +40,9 @@
         <div class="alert alert-info" id="cart-summary">
             <strong>Panier :</strong> Aucun article sélectionné.
         </div>
-
-        {{-- <div class="d-flex justify-content-end mb-3">
-            <button id="clear-cart-btn" class="btn btn-sm btn-outline-danger rounded-pill">
-                <i class="bi bi-trash-fill"></i> Vider le panier
-            </button>
-        </div> --}}
+     
         
-        
-
         <div class="d-flex flex-column flex-md-row gap-2 py-3">
-
-            <!-- PayPal -->
-            <form action="{{ route('client.paypal.panier') }}" method="POST">
-                @csrf
-                <input type="hidden" name="cart_data" id="cart-data-paypal">
-                <button type="submit" name="method" value="paypal"
-                    class="btn btn-sm btn-light fw-bold rounded-pill d-flex align-items-center justify-content-center py-2 px-3">
-                    <img src="{{ asset('assets/images/paypal (1).png') }}" alt="PayPal" class="me-2" style="height:25px; width:25px;">
-                    <span class="fw-bold fs-6">PayPal</span>
-                </button>
-            </form>
 
             {{-- fedapay --}}
             <form action="{{ route('client.fedapay.panier.initier') }}" method="POST" id="fedapay-btn" >
@@ -78,21 +60,24 @@
 
             <form id="btn-virement">
                 <button type="button" 
-                    class="btn btn-sm btn-info fw-bold rounded-pill d-flex align-items-center justify-content-center py-2 px-3"
+                    class="btn btn-sm btn-dark fw-bold rounded-pill d-flex align-items-center justify-content-center py-2 px-3"
                     data-bs-toggle="modal"
                     data-bs-target="#virementModal">
-                    <i class="bi bi-wallet-fill text-light"></i>&nbsp;&nbsp;
-                    <span class="fw-bold fs-6 text-light">Virement bancaire</span>
+                    <i class="bi bi-wallet-fill text-warning"></i>&nbsp;&nbsp;
+                    <span class="fw-bold fs-6 text-warning">Virement bancaire</span>
                 </button>
             </form>
             
         </div>
 
-        <div class="modal fade" id="virementModal" tabindex="-1" aria-hidden="true">
+        <div class="modal fade modal-lg" id="virementModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content rounded-4">
-                <div class="modal-header bg-info text-light">
-                  <h5 class="modal-title">Virement Bancaire pour SHOPEASY</h5>
+                <div class="modal-header bg-dark fw-semibold text-warning">
+                  <h5 class="modal-title">
+                    <img src="{{ asset('assets/images/logo_sahashop.png') }}" width="30px;height:30px;" alt="">
+                    Virement Bancaire pour SHOPEASY
+                  </h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
                 <div class="modal-body">
@@ -108,8 +93,7 @@
               </div>
             </div>
         </div>
-          
-          
+              
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -136,8 +120,8 @@
           @forelse($biens as $bien)
                 {{-- Vue CARD --}}
                 <div class="col-md-3 col-sm-6 mix {{ $bien->categorie }} animate__animated animate__fadeIn bien-grid" data-title="{{ strtolower($bien->titre) }}">
-                    <div class="card shadow-sm h-100 border-0 rounded-4">
-                        <div class="row g-1 p-2">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="row card-media g-1 p-2">
                             @php
                                 $medias = $bien->medias ?? collect();
                                 $mediasPreview = $medias->take(4);
@@ -177,12 +161,24 @@
                         </div>
 
                         <div class="card-body">
-                            <h5 class="card-title">{{ $bien->titre }}</h5>
-                            <p class="card-text text-muted">
+                            <h5 class="card-title text-dark">{{ $bien->titre }}</h5>
+                            <p class="card-text text-muted mb-0">
                                 <span class="badge bg-dark text-warning fw-semibold">{{ ucfirst($bien->categorie?->name ?? '-') }}</span>
                             </p>
-                            <p class="fw-bold">{{ number_format($bien->prix, 0, ',', ' ') }} FCFA</p>
-
+                            <p class="fw-semibold">
+                                <span class="fw-bold"><i class="bi bi-cash-coin"></i> {{ number_format($bien->prix, 0, ',', ' ') }} FCFA</span>
+                                <br>
+                                <i class="bi bi-shop"></i> Boutique : {{ $bien->proprietaire->name }}
+                                <br>
+                                @if ($bien->stock >= 5)
+                                    <i class="bi bi-bag-check-fill"></i> Stocke : <span class="text-success">{{ $bien->stock }} disponibles</span>
+                                @elseif ($bien->stock <= 1)
+                                    <i class="bi bi-bag-check-fill"></i> Stocke : <span class="text-danger">{{ $bien->stock }} disponible</span>
+                                @else
+                                <i class="bi bi-bag-check-fill"></i> Stocke : <span class="text-danger">{{ $bien->stock }} disponibles</span>
+                                @endif                                
+                            </p>
+                            
                             <div class="mt-auto d-flex justify-content-between gap-1">
 
                                 <div class="cart-action" data-id="{{ $bien->id }}">
@@ -219,8 +215,17 @@
                         <div>
                             <strong>{{ $bien->titre }}</strong><br>
                             <small class="text-muted">
-                                {{ ucfirst($bien->categorie?->name ?? '-') }} - {{ ucfirst($bien->description) }}
+                                <i class="bi bi-cash-coin"></i> {{ ucfirst($bien->categorie?->name ?? '-') }} - {{ ucfirst($bien->description) }}
                             </small>
+
+                            @if ($bien->stock >= 5)
+                                <i class="bi bi-bag-check-fill"></i> Stocke : <span class="text-success">{{ $bien->stock }} disponibles</span>
+                            @elseif ($bien->stock <= 1)
+                                <i class="bi bi-bag-check-fill"></i> Stocke : <span class="text-danger">{{ $bien->stock }} disponible</span>
+                            @else
+                            <i class="bi bi-bag-check-fill"></i> Stocke : <span class="text-danger">{{ $bien->stock }} disponibles</span>
+                            @endif    
+
                         </div>
 
                         <div class="d-flex align-items-center gap-1">
@@ -255,7 +260,7 @@
                 </div>
           @empty
               <div class="col-12 text-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="Aucun article" class="empty-img">
+                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" style="width:180px;height:180px;" alt="Aucun article" class="empty-img">
                 <p class="text-muted">Aucun bien disponible.</p>
               </div>
           @endforelse
@@ -268,6 +273,16 @@
         </div>        
     </div>
 </section>
+
+
+@if(session('clear_cart'))
+    {{-- Supression du localeStorage après paiement réussi --}}
+    <script>
+        localStorage.removeItem("cart");
+        location.reload(); // recharge avec stock à jour
+    </script>
+@endif
+
 
 
 <script>    // Gesion CARD + LISTE 
@@ -310,7 +325,6 @@
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     
     const cartSummary = document.getElementById('cart-summary');
-    const paypalInput = document.getElementById('cart-data-paypal');
     const fedapayInput = document.getElementById('cart-data-fedapay');
     
     function updateCartUI() {
@@ -319,7 +333,7 @@
             cartSummary.innerHTML = "<strong>Panier :</strong> Aucun article sélectionné.";
 
             document.querySelectorAll(
-                '#fedapay-btn, #btn-virement, form[action*="paypal"]'
+                '#fedapay-btn, #btn-virement'
             ).forEach(el => el.style.display = 'none');
 
             return;
@@ -353,7 +367,6 @@
 
         document.querySelectorAll('#fedapay-btn, #btn-virement').forEach(el => el.style.display = '');
 
-        paypalInput.value = JSON.stringify(cart);
         fedapayInput.value = JSON.stringify(cart);
 
         localStorage.setItem("cart", JSON.stringify(cart));
@@ -505,6 +518,19 @@
     .modal-dialog {
         margin-top: 100px !important; /* Ajuste selon la hauteur de ta navbar */
     }
+
+    .card-media {
+        height: 320px;
+        overflow: hidden;
+    }
+
+    .card-media img,
+    .card-media video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
 
     /*Bouton peronalisé, style shopeasy */
 

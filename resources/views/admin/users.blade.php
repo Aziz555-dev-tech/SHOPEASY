@@ -5,22 +5,19 @@
 @section('content')
 
     <!-- Section utilisateurs -->
+    
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
 
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+        @if (session('danger'))
+            <div class="alert alert-danger">
+                {{ session('danger') }}
+            </div>
+        @endif
 
-    @if (session('danger'))
-        <div class="alert alert-danger">
-            {{ session('danger') }}
-        </div>
-    @endif
-
-
-
-    <div class="card mb-4">
         <div class="card-header bg-primary text-white">Utilisateurs récents</div>
         <div class="card-body">
             @if($users->count() > 0)

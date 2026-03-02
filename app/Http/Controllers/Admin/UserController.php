@@ -24,7 +24,7 @@ class UserController extends Controller
     public function index()
     {
         // Récupérer tous les utilisateurs et biens ou juste les derniers
-        $users = User::latest()->take(12)->get();
+        $users = User::latest()->take(15)->get();
 
         // Passer à la vue
         return view('admin.users', compact('users'));
@@ -48,6 +48,7 @@ class UserController extends Controller
             'surname' => ['required', 'string', 'max:255'],
             'telephone' => ['required', 'unique:users,telephone'],
             'email' => ['required', 'string', 'lowercase', 'unique:users,email', 'max:255'],
+            'role' => ['required', 'string'],
         ]);
     
         // Générer le mot de passe temporaire
@@ -59,18 +60,21 @@ class UserController extends Controller
             'telephone' => $request->telephone,
             'email' => strtolower(trim($request->email)),
             'password' => Hash::make($passwordTemp),
-            'role' => 'proprietaire',
+            'role' => $request->role,
             'must_change_password' => true,
         ]);
+
+        $role = $user->role;
     
         // Envoi par email
-        Mail::to($user->email)->send(new TemporaryPasswordMail($passwordTemp));
+        Mail::to($user->email)->send(new TemporaryPasswordMail($passwordTemp, $role));
     
         // Flash dans la session (conservation du fonctionnement existant)
         session()->flash('password_temp', $passwordTemp);
-    
+
         return redirect()->route('admin.users.index')
-            ->with('success', 'Utilisateur créé avec succès. Mot de passe envoyé par email au '.$user->email, $passwordTemp);
+                ->with('success', 'Utilisateur créé avec succès. Mot de passe envoyé par email au '.$user->email);
+        
     }
     
 

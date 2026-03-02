@@ -36,6 +36,7 @@
                             <th>Date d’achat</th>
                             <th>Mode de paiement</th>
                             <th>Statut</th>
+                            <th>Suivie de la livraison</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -48,6 +49,16 @@
                                 <td>{{ ucfirst($achat->paiements->first()->mode ?? '') }}</td>
                                 <td>
                                     <span class="badge bg-success">Payé</span>  
+                                </td>
+                                <td>
+                                    @if($livraison->livreur)
+                                        <a href="{{ route('client.livraisons.tracking', $livraison) }}"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-geo-alt"></i> Suivre
+                                        </a>
+                                    @else
+                                        <span class="text-muted">En attente de livreur</span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

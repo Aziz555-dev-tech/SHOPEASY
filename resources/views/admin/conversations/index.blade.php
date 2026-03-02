@@ -9,7 +9,9 @@
 
     <div class="user-carousel d-flex align-items-center gap-3 overflow-auto pb-3">
         @forelse($users as $u)
-            <div class="text-center user-item flex-shrink-0" style="width: 90px;">
+            <div class="text-center user-item flex-shrink-0"
+            style="width: 90px;"
+            data-search="{{ strtolower($u->name . ' ' . $u->surname . ' ' . $u->role) }}">
                 <a href="javascript:void(0)" 
                    class="text-decoration-none text-dark user-preview"
                    data-name="{{ $u->name }}"
@@ -35,6 +37,20 @@
 
     <hr class="my-4">
 
+    {{-- ==================== RECHERCHE UTILISATEUR ==================== --}}
+
+    @if (Auth::user()->role = 'admin')
+        <div class="mb-3 position-relative">
+            <input
+                type="text"
+                id="userSearch"
+                class="form-control ps-5"
+                placeholder="Rechercher un utilisateur..."
+            >
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+        </div>
+    @endif
+
     {{-- ==================== SECTION : CONVERSATIONS EXISTANTES ==================== --}}
     @if($conversations->isEmpty())
         <div class="alert alert-info">Aucune conversation pour le moment.</div>
@@ -54,13 +70,13 @@
                     <div class="d-flex align-items-center">
 
                         {{-- Avatar de l’interlocuteur --}}
-                        <img src="{{ $interlocuteur && $interlocuteur->profil 
-                            ? asset('storage/' . $interlocuteur->profil) 
-                            : asset('assets/images/default_user.png') }}"
-                            alt="Photo de profil"
-                            class="rounded-circle me-3"
-                            width="50"
-                            height="50">
+                            <img src="{{ $interlocuteur && $interlocuteur->profil 
+                                ? asset('storage/' . $interlocuteur->profil) 
+                                : asset('assets/images/default_user.png') }}"
+                                alt="Photo de profil"
+                                class="rounded-circle me-3"
+                                width="50"
+                                height="50">
 
                         {{-- Nom et dernier message --}}
                         <div>
@@ -91,21 +107,22 @@
 
 </div>
 
+
 <style>
-.user-carousel::-webkit-scrollbar {
-    height: 8px;
-}
-.user-carousel::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 10px;
-}
-.user-carousel {
-    scrollbar-color: #ccc transparent;
-}
-.user-item:hover img {
-    transform: scale(1.08);
-    transition: transform 0.3s ease;
-}
+    .user-carousel::-webkit-scrollbar {
+        height: 8px;
+    }
+    .user-carousel::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+    .user-carousel {
+        scrollbar-color: #ccc transparent;
+    }
+    .user-item:hover img {
+        transform: scale(1.08);
+        transition: transform 0.3s ease;
+    }
 </style>
 
 
@@ -138,8 +155,29 @@
         });
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+        const searchInput = document.getElementById('userSearch');
+        const users = document.querySelectorAll('.user-item');
+    
+        searchInput.addEventListener('input', function () {
+            const value = this.value.toLowerCase().trim();
+    
+            users.forEach(user => {
+                const text = user.dataset.search;
+                user.style.display = text.includes(value) ? 'block' : 'none';
+            });
+        });
+    
+    });
+</script>
+    
     
 @endsection
+
+
 
 {{-- ==================== MODAL ZOOM PROFIL UTILISATEUR ==================== --}}
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
@@ -159,5 +197,4 @@
         </div>
       </div>
     </div>
-</div>
-  
+  </div>

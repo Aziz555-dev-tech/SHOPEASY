@@ -143,7 +143,8 @@
           </div>
       </div>
   </div> 
-
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
       const ctx = document.getElementById('loyersChart').getContext('2d');
       new Chart(ctx, {
@@ -164,8 +165,7 @@
       });
   </script>
 
-
-    <!-- Styles pour effets hover -->
+<!-- Styles pour effets hover -->
     <style>
       .stat-card {
           transition: transform 0.2s ease, box-shadow 0.2s ease;
